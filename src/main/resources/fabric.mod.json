@@ -3,7 +3,7 @@
   "id": "anubis",
   "version": "${version}",
   "name": "Anubis",
-  "description": "",
+  "description": "Weighs the soul of incoming requests to stop bots.",
   "authors": [],
   "contact": {},
   "license": "GPL-3.0",
