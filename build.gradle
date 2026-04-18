@@ -1,6 +1,6 @@
 plugins {
     id 'fabric-loom' version '1.16-SNAPSHOT'
-    id 'maven-publish'
+    id 'com.gradleup.shadow' version '9.3.+'
 }
 
 version = project.mod_version
@@ -90,20 +90,22 @@ jar {
     }
 }
 
-// configure the maven publication
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-            from components.java
-        }
+shadowJar {
+    enableAutoRelocation = true
+    relocationPrefix = "anubis"
+    dependencies {
+        include(dependency('org.bouncycastle:bcprov-jdk18on:1.84'))
+        include(dependency('org.apache.commons:commons-configuration2:2.14.0'))
     }
+}
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+afterEvaluate {
+    tasks.named('remapJar').configure {
+        dependsOn tasks.named('shadowJar')
     }
+}
+
+remapJar {
+    inputFile = file("${layout.buildDirectory.get().asFile.path}" +
+            "/libs/${project.archives_base_name}-${project.version}-all.jar")
 }
