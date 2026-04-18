@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "anubis",
+  "version": "${version}",
+  "name": "Anubis",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/anubis/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "lei.minecraft.anubis.client.AnubisClient"
+    ],
+    "main": [
+      "lei.minecraft.anubis.Anubis"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
