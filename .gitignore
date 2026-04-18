@@ -1,5 +1,3 @@
-# 项目排除路径
-/.gradle/
+/.*/
 /build/
-/build/classes/java/client/
-/build/classes/java/main/
+/run/
