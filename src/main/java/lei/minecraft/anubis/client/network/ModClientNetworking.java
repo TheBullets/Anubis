@@ -2,7 +2,6 @@ package lei.minecraft.anubis.client.network;
 
 import lei.minecraft.anubis.Anubis;
 import lei.minecraft.anubis.ModConfiguration;
-import lei.minecraft.anubis.client.AnubisClient;
 import lei.minecraft.anubis.client.ChallengeResolver;
 import lei.minecraft.anubis.client.PoWException;
 import lei.minecraft.anubis.network.ModServerNetworking;
