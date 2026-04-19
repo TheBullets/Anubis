@@ -27,3 +27,8 @@ jobs:
 
     - name: Build a remapped jar using the Gradle
       run: gradle remapJar
+    - name: Upload mod file
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/libs/Anubis-*.*.?.jar
+        archive: false
