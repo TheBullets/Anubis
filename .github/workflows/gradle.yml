@@ -23,10 +23,8 @@ jobs:
 
     - name: Secret Scanning
       uses: trufflesecurity/trufflehog@main
-      with:
-        extra_args: --results=verified,unknown
     - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v4
+      uses: actions/dependency-review-action@v4
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
