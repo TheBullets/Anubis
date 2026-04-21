@@ -1,14 +1,19 @@
 package lei.minecraft.anubis.network;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lei.minecraft.anubis.Anubis;
 import lei.minecraft.anubis.ChallengeVerifier;
 import lei.minecraft.anubis.ModConfiguration;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -21,14 +26,7 @@ public enum ModServerNetworking {
             return;
         }
         ServerLoginConnectionEvents.QUERY_START.register(
-                (handler, server, sender, synchronizer) -> {
-                    byte[] challenges = Anubis.generateChallenge();
-                    Anubis.challenges.put(handler, challenges);
-                    PacketByteBuf packet = PacketByteBufs.create();
-                    packet.writeBytes(challenges);
-                    packet.writeInt(ModConfiguration.getDifficulty());
-                    sender.sendPacket(POW_CHANNEL, packet);
-        });
+                ModServerNetworking::onLoginStart);
         ServerLoginConnectionEvents.DISCONNECT.register((
                 (handler, server) ->
                         Anubis.challenges.remove(handler)));
@@ -52,5 +50,17 @@ public enum ModServerNetworking {
                         handler.disconnect(Text.literal("The PoW challenge failed."));
                     }
                 });
+    }
+
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    private static void onLoginStart
+            (ServerLoginNetworkHandler handler, MinecraftServer server, @NotNull PacketSender sender,
+             ServerLoginNetworking.LoginSynchronizer synchronizer) {
+        byte[] challenges = Anubis.generateChallenge();
+        Anubis.challenges.put(handler, challenges);
+        PacketByteBuf packet = PacketByteBufs.create();
+        packet.writeBytes(challenges);
+        packet.writeInt(ModConfiguration.getDifficulty());
+        sender.sendPacket(POW_CHANNEL, packet);
     }
 }

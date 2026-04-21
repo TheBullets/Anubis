@@ -34,6 +34,7 @@ public enum ChallengeVerifier {
         }
         return bytes;
     }
+    @Contract(pure = true)
     private static byte @NotNull [] concat(byte @NotNull [] a, byte @NotNull [] b) {
         byte[] result = new byte[a.length + b.length];
         System.arraycopy(a, 0, result, 0, a.length);

@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.16-SNAPSHOT'
     id 'com.gradleup.shadow' version '9.4.+'
+    id("com.github.spotbugs") version "6.5.1"
 }
 
 configurations.create('shadowInclude')
@@ -36,20 +37,22 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     shadowInclude 'org.bouncycastle:bcprov-jdk18on:1.84'
-    shadowInclude 'org.apache.commons:commons-configuration2:2.14.0'
 
     compileOnly("org.projectlombok:lombok:1.18.44")
     annotationProcessor("org.projectlombok:lombok:1.18.44")
 
     testCompileOnly("org.projectlombok:lombok:1.18.44")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.44")
+
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.8'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
 }
 
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+    filteringCharset = "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,

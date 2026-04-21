@@ -3,12 +3,13 @@ import lei.minecraft.anubis.Anubis;
 import lei.minecraft.anubis.ChallengeVerifier;
 import lei.minecraft.anubis.ModConfiguration;
 import org.bouncycastle.crypto.generators.SCrypt;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalLong;
 
 public enum ChallengeResolver {
     ;
-    public static OptionalLong findNonce(byte[] data, int difficulty, long maxNonce) {
+    public static OptionalLong findNonce(byte @NotNull [] data, int difficulty, long maxNonce) {
         long nonce = 0;
         Anubis.LOGGER.info("Difficulty: {}; Max Nonce: {}", difficulty, maxNonce);
         int dataLength = data.length;

@@ -4,15 +4,13 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileReader;
-import java.nio.charset.StandardCharsets;
+import java.io.FileInputStream;
 import java.nio.file.Path;
+import java.util.Properties;
 
 public enum ModConfiguration {
     ;
@@ -39,6 +37,29 @@ public enum ModConfiguration {
     @Getter
     private static boolean server = false;
 
+    private static int getIntOrDefault(@NotNull Properties properties,
+                                       String key, int defaultValue) {
+        String property = properties.getProperty(key);
+        if (property != null) {
+            try {
+                return Integer.parseInt(property);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return defaultValue;
+    }
+    private static long getLongOrDefault(@NotNull Properties properties,
+                                       String key, long defaultValue) {
+        String property = properties.getProperty(key);
+        if (property != null) {
+            try {
+                return Long.parseLong(property);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return defaultValue;
+    }
+
     @Environment(EnvType.SERVER)
     @SneakyThrows
     public static void serverInitialize() {
@@ -46,11 +67,13 @@ public enum ModConfiguration {
         File file = path.toFile();
         FileUtils.createParentDirectories(file);
         if(!file.createNewFile()) {
-            FileBasedConfiguration configuration = new PropertiesConfiguration();
-            configuration.read(new FileReader(file, StandardCharsets.UTF_8));
-            difficulty = configuration.getInt("difficulty", DEFAULT_DIFFICULTY);
-            if (difficulty < 0) {
-                throw new ConfigurationException("Anubis's server configuration file is invalid.");
+            try (FileInputStream input = new FileInputStream(file)) {
+                Properties properties = new Properties();
+                properties.load(input);
+                difficulty = getIntOrDefault(properties, "login.difficulty", DEFAULT_DIFFICULTY);
+                if (difficulty < 0) {
+                    throw new IllegalArgumentException("Anubis's server configuration file is invalid.");
+                }
             }
         }
         server = true;
@@ -63,11 +86,13 @@ public enum ModConfiguration {
         File file = path.toFile();
         FileUtils.createParentDirectories(file);
         if(!file.createNewFile()) {
-            FileBasedConfiguration configuration = new PropertiesConfiguration();
-            configuration.read(new FileReader(file, StandardCharsets.UTF_8));
-            maxNonce = configuration.getLong("max_nonce", DEFAULT_MAX_NONCE);
-            if (maxNonce < 0) {
-                throw new ConfigurationException("Anubis's client configuration file is invalid.");
+            try (FileInputStream input = new FileInputStream(file)) {
+                Properties properties = new Properties();
+                properties.load(input);
+                maxNonce = getLongOrDefault(properties, "login.max_nonce", DEFAULT_MAX_NONCE);
+                if (maxNonce < 0) {
+                    throw new IllegalArgumentException("Anubis's client configuration file is invalid.");
+                }
             }
         }
     }
