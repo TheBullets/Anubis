@@ -28,6 +28,8 @@ jobs:
       uses: gradle/actions/setup-gradle@v6
       id: setup-gradle
 
+    - name: Run SpotBugs
+      run: gradle spotbugsMain
     - name: Build a remapped jar using the Gradle
       run: gradle remapJar
     - name: Upload mod file
