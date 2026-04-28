@@ -9,6 +9,7 @@
   "license": "GPL-3.0",
   "icon": "assets/anubis/icon.png",
   "environment": "*",
+  "accessWidener" : "anubis.accesswidener",
   "entrypoints": {
     "client": [
       "lei.minecraft.anubis.client.AnubisClient"
