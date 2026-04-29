@@ -4,8 +4,11 @@
   "version": "${version}",
   "name": "Anubis",
   "description": "Weighs the soul of incoming requests to stop bots.",
-  "authors": [],
-  "contact": {},
+  "authors": [ "TheBullets" ],
+  "contact": {
+    "issues": "https://github.com/TheBullets/Anubis/issues",
+    "sources": "https://github.com/TheBullets/Anubis"
+  },
   "license": "GPL-3.0",
   "icon": "assets/anubis/icon.png",
   "environment": "*",

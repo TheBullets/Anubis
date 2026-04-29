@@ -1,11 +1,9 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 //file:noinspection HardCodedStringLiteral
 plugins {
     id 'fabric-loom' version '1.16-SNAPSHOT'
     id 'com.gradleup.shadow' version '9.4.+'
-    id("com.github.spotbugs") version "6.5.1"
-    id("com.coditory.manifest") version "1.1.0"
+    id 'com.github.spotbugs' version '6.5.1'
+    id 'com.coditory.manifest' version '1.1.0'
 }
 
 configurations.create('shadowInclude')
@@ -97,7 +95,7 @@ jar {
     }
 }
 
-tasks.named('shadowJar', ShadowJar) {
+tasks.shadowJar {
     enableAutoRelocation.set(true)
     relocationPrefix.set("lei.shade.anubis")
     configurations.set([project.configurations.shadowInclude])
