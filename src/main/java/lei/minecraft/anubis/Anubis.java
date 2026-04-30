@@ -16,8 +16,18 @@ public final class Anubis implements ModInitializer {
     public static final @NonNls Logger LOGGER = LoggerFactory.getLogger(MODID);
     @NonNls
     public static final String CONFIG_PATH_PREFIX = "config";
+    @NonNls
+    public static final String RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT";
 
     private final AtomicBoolean initialized = new AtomicBoolean();
+
+    @NonBlocking
+    @Contract(pure = true)
+    public static void startInitialization(@NotNull AtomicBoolean initialized) {
+        if (initialized.getAndSet(true)) {
+            throw new IllegalStateException("Already initialized");
+        }
+    }
 
     @Blocking
     @Override
@@ -27,14 +37,6 @@ public final class Anubis implements ModInitializer {
             ModServerConfiguration.initialize();
             ModServerNetworking.initialize();
             LOGGER.info("Anubis was initialized on the server side.");
-        }
-    }
-
-    @NonBlocking
-    @Contract(pure = true)
-    public static void startInitialization(@NotNull AtomicBoolean initialized) {
-        if (initialized.getAndSet(true)) {
-            throw new IllegalStateException("Already initialized");
         }
     }
 }

@@ -23,6 +23,7 @@ public enum ChallengeManager {
     public static final Identifier POW_CHANNEL = Objects.requireNonNull(Identifier.of(Anubis.MODID, POW_CHANNEL_NAME));
 
     private static final RandomGenerator randomGenerator = new SecureRandom();
+
     public static byte @NotNull [] generateChallenge() {
         byte[] challenge = new byte[CHALLENGE_LENGTH];
         randomGenerator.nextBytes(challenge);

@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMaps;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lei.minecraft.anubis.Anubis;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -26,11 +28,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Environment(EnvType.SERVER)
 public enum ModServerConfiguration {
     ;
+    private static final Object2IntMap<String> accountNameLimits = new Object2IntOpenHashMap<>();
+    private static final Int2IntMap accountTypeLimits = new Int2IntOpenHashMap();
+    private static final AtomicBoolean initialized = new AtomicBoolean();
     // LOGIN LIMITS
     @Getter
     private static int genericLoginDifficulty = 8;
-    private static final Object2IntMap<String> accountNameLimits = new Object2IntOpenHashMap<>();
-    private static final Int2IntMap accountTypeLimits = new Int2IntOpenHashMap();
 
     @Contract(" -> new")
     private static @NotNull ServerConfiguration getServerConfiguration() throws IOException {
@@ -49,8 +52,6 @@ public enum ModServerConfiguration {
         }
     }
 
-    private static final AtomicBoolean initialized = new AtomicBoolean();
-
     @Blocking
     @SneakyThrows
     public static void initialize() {
@@ -63,9 +64,11 @@ public enum ModServerConfiguration {
             String accountName = config.accountName();
             if (accountName != null) {
                 accountNameLimits.put(accountName.toLowerCase(Locale.ROOT), difficulty);
-            } else if (config.accountTypes() != 0) {
+            }
+            else if (config.accountTypes() != 0) {
                 accountTypeLimits.put(config.accountTypes(), difficulty);
-            } else {
+            }
+            else {
                 genericLoginDifficulty = difficulty;
             }
         });

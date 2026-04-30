@@ -15,6 +15,22 @@ public enum ChallengeResolver {
     ;
     private static final int BYTE_MASK = 0xFF;
 
+    @Blocking
+    public static boolean verifyProof(byte[] data, long nonce, int difficulty) {
+        byte[] input = concat(data, Longs.toByteArray(nonce));
+        byte[] scryptOutput = SCrypt.generate(input, ChallengeManager.SALT, ChallengeManager.N, ChallengeManager.R,
+                ChallengeManager.P, ChallengeManager.DK_LEN);
+        return isValidProof(scryptOutput, difficulty);
+    }
+
+    @Contract(pure = true)
+    private static byte @NotNull [] concat(byte @NotNull [] a, byte @NotNull [] b) {
+        byte[] result = new byte[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+
     @Contract(pure = true)
     private static boolean isValidProof(byte @NotNull [] result,
                                         @Range(from = 0, to = Integer.MAX_VALUE) int difficulty) {
@@ -33,20 +49,6 @@ public enum ChallengeResolver {
             return (b & mask) == 0;
         }
         return true;
-    }
-    @Contract(pure = true)
-    private static byte @NotNull [] concat(byte @NotNull [] a, byte @NotNull [] b) {
-        byte[] result = new byte[a.length + b.length];
-        System.arraycopy(a, 0, result, 0, a.length);
-        System.arraycopy(b, 0, result, a.length, b.length);
-        return result;
-    }
-
-    @Blocking
-    public static boolean verifyProof(byte[] data, long nonce, int difficulty) {
-        byte[] input = concat(data, Longs.toByteArray(nonce));
-        byte[] scryptOutput = SCrypt.generate(input, ChallengeManager.SALT, ChallengeManager.N, ChallengeManager.R, ChallengeManager.P, ChallengeManager.DK_LEN);
-        return isValidProof(scryptOutput, difficulty);
     }
 
     @Blocking

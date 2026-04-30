@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public record LoginChallengeRecord(byte[] challenge, int difficulty) {
+public record LoginChallengeRecord(byte[] challenge,
+                                   int difficulty) {
     public LoginChallengeRecord(byte @NonNull [] challenge, int difficulty) {
         this.challenge = Arrays.copyOf(challenge, challenge.length);
         this.difficulty = difficulty;

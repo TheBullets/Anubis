@@ -56,11 +56,11 @@ public enum ModServerNetworking {
                     long nonce;
                     try {
                         nonce = buf.readLong();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         if (handler.profile == null) {
                             Anubis.LOGGER.info("The client response is invalid.", e);
-                        } else {
+                        }
+                        else {
                             Anubis.LOGGER.info("The client response of {} is invalid.", handler.profile.getName(), e);
                         }
                         return;
@@ -68,6 +68,7 @@ public enum ModServerNetworking {
                     byte[] challenge = record.challenge();
                     synchronizer.waitFor(server.submit(() -> {
                         Anubis.LOGGER.info("SERVER BEGIN {}", System.currentTimeMillis());
+                        //noinspection BlockingMethodInNonBlockingContext
                         boolean successful = ChallengeResolver.verifyProof(challenge, nonce, record.difficulty());
                         Anubis.LOGGER.info("SERVER END {}", System.currentTimeMillis());
                         if (!successful) {
@@ -77,7 +78,7 @@ public enum ModServerNetworking {
                 });
     }
 
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    @SuppressFBWarnings(Anubis.RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)
     private static void onLoginStart
             (@NotNull ServerLoginNetworkHandler handler, MinecraftServer server, @NotNull PacketSender sender,
              ServerLoginNetworking.LoginSynchronizer synchronizer) {

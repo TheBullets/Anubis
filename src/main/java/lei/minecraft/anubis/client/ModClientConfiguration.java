@@ -20,20 +20,6 @@ public enum ModClientConfiguration {
     ;
     private static final long DEFAULT_MAX_NONCE = 5000L;
     private static final AtomicLong maxNonce = new AtomicLong(DEFAULT_MAX_NONCE);
-
-    @SuppressWarnings("SameParameterValue")
-    private static long getLongOrDefault(@NotNull Properties properties,
-                                         String key, long defaultValue) {
-        String property = properties.getProperty(key);
-        if (property != null) {
-            try {
-                return Long.parseLong(property);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultValue;
-    }
-
     private static final AtomicBoolean initialized = new AtomicBoolean();
 
     @Blocking
@@ -54,6 +40,19 @@ public enum ModClientConfiguration {
                 ModClientConfiguration.maxNonce.set(maxNonce);
             }
         }
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static long getLongOrDefault(@NotNull Properties properties,
+                                         String key, long defaultValue) {
+        String property = properties.getProperty(key);
+        if (property != null) {
+            try {
+                return Long.parseLong(property);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return defaultValue;
     }
 
     public static long getMaxNonce() {

@@ -35,7 +35,7 @@ public enum ModClientNetworking {
     }
 
     @SneakyThrows
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    @SuppressFBWarnings(Anubis.RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)
     private static @NotNull CompletableFuture<PacketByteBuf> receive
             (MinecraftClient client, ClientLoginNetworkHandler handler, @NotNull PacketByteBuf buf,
              Consumer<GenericFutureListener<? extends Future<? super Void>>> listenerAdder) {
