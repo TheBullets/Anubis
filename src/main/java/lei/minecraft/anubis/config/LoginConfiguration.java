@@ -1,7 +1,6 @@
 package lei.minecraft.anubis.config;
 
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 @SuppressWarnings("unused")
 public record LoginConfiguration(
@@ -13,12 +12,6 @@ public record LoginConfiguration(
     public static final int OPERATOR_FLAG = 0x2;
 
     public static final int DEFAULT_DIFFICULTY = 8;
-
-    @Range(from = 0, to = Integer.MAX_VALUE)
-    @Override
-    public int difficulty() {
-        return difficulty;
-    }
 
     public void check() {
         if (accountName != null && accountTypes != 0) {
