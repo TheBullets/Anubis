@@ -21,22 +21,23 @@ public final class Anubis implements ModInitializer {
 
     private final AtomicBoolean initialized = new AtomicBoolean();
 
-    @NonBlocking
-    @Contract(pure = true)
-    public static void startInitialization(@NotNull AtomicBoolean initialized) {
-        if (initialized.getAndSet(true)) {
-            throw new IllegalStateException("Already initialized");
-        }
-    }
-
     @Blocking
     @Override
     public void onInitialize() {
         startInitialization(initialized);
         if (FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.SERVER) {
-            ModServerConfiguration.initialize();
+            ModServerConfiguration.load();
             ModServerNetworking.initialize();
+            ModCommands.initialize();
             LOGGER.info("Anubis was initialized on the server side.");
+        }
+    }
+
+    @NonBlocking
+    @Contract(pure = true)
+    public static void startInitialization(@NotNull AtomicBoolean initialized) {
+        if (initialized.getAndSet(true)) {
+            throw new IllegalStateException("Already initialized.");
         }
     }
 }

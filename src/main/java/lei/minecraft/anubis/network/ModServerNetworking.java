@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lei.minecraft.anubis.Anubis;
 import lei.minecraft.anubis.challenge.ChallengeManager;
-import lei.minecraft.anubis.challenge.ChallengeResolver;
 import lei.minecraft.anubis.challenge.LoginChallengeRecord;
 import lei.minecraft.anubis.config.LoginConfiguration;
 import lei.minecraft.anubis.config.ModServerConfiguration;
@@ -23,10 +22,8 @@ import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.SERVER)
@@ -34,54 +31,54 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public enum ModServerNetworking {
     ;
 
-    private static final Map<ServerLoginNetworkHandler, LoginChallengeRecord> loginChallenges = new ConcurrentHashMap<>(10);
     private static final AtomicBoolean initialized = new AtomicBoolean();
 
     @NonBlocking
     public static void initialize() {
         Anubis.startInitialization(initialized);
-        ServerLoginConnectionEvents.QUERY_START.register(
-                ModServerNetworking::onLoginStart);
-        ServerLoginConnectionEvents.DISCONNECT.register((
-                (handler, server) ->
-                        loginChallenges.remove(handler)));
+        ServerLoginConnectionEvents.QUERY_START.register(ModServerNetworking::onLoginStart);
+        ServerLoginConnectionEvents.DISCONNECT.register(
+                ((handler, server) -> ChallengeManager.removeLoginChallenge(handler)));
         ServerLoginNetworking.registerGlobalReceiver(ChallengeManager.POW_CHANNEL,
                 (server, handler, understood, buf, synchronizer, responseSender) -> {
                     if (!understood) {
                         handler.disconnect(Text.literal("You need to install Anubis to solve the PoW challenge."));
                         return;
                     }
-                    LoginChallengeRecord record = loginChallenges.remove(handler);
-                    assert record != null;
-                    long nonce;
+                    LoginChallengeRecord record = ChallengeManager.removeLoginChallenge(handler);
+                    if (record == null) {
+                        handler.disconnect(Text.translatable("anubis.text.login.reloaded"));
+                        return;
+                    }
+                    byte[] argument;
                     try {
-                        nonce = buf.readLong();
+                        argument = buf.readByteArray();
                     } catch (Exception e) {
                         if (handler.profile == null) {
-                            Anubis.LOGGER.info("The client response is invalid.", e);
+                            Anubis.LOGGER.debug("The client response is invalid.", e);
                         }
                         else {
-                            Anubis.LOGGER.info("The client response of {} is invalid.", handler.profile.getName(), e);
+                            Anubis.LOGGER.debug("The client response of {} is invalid.", handler.profile.getName(), e);
                         }
                         return;
                     }
                     byte[] challenge = record.challenge();
                     synchronizer.waitFor(server.submit(() -> {
                         Anubis.LOGGER.info("SERVER BEGIN {}", System.currentTimeMillis());
-                        //noinspection BlockingMethodInNonBlockingContext
-                        boolean successful = ChallengeResolver.verifyProof(challenge, nonce, record.difficulty());
+                        boolean successful = ChallengeManager.getProvider()
+                                .verifyProof(challenge, argument, record.difficulty());
                         Anubis.LOGGER.info("SERVER END {}", System.currentTimeMillis());
                         if (!successful) {
-                            handler.disconnect(Text.literal("The PoW challenge failed."));
+                            handler.disconnect(Text.translatable("anubis.text.login.failed"));
                         }
                     }));
                 });
     }
 
     @SuppressFBWarnings(Anubis.RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)
-    private static void onLoginStart
-            (@NotNull ServerLoginNetworkHandler handler, MinecraftServer server, @NotNull PacketSender sender,
-             ServerLoginNetworking.LoginSynchronizer synchronizer) {
+    private static void onLoginStart(@NotNull ServerLoginNetworkHandler handler, MinecraftServer server,
+                                     @NotNull PacketSender sender,
+                                     ServerLoginNetworking.LoginSynchronizer synchronizer) {
         GameProfile profile = handler.profile;
         Objects.requireNonNull(profile);
         int difficulty;
@@ -101,15 +98,13 @@ public enum ModServerNetworking {
                 types |= LoginConfiguration.OPERATOR_FLAG;
             }
             var map = ModServerConfiguration.getAccountTypeLimits();
-            difficulty = map.getOrDefault(types,
-                    ModServerConfiguration.getGenericLoginDifficulty());
+            difficulty = map.getOrDefault(types, ModServerConfiguration.getGenericLoginDifficulty());
         }
-        byte[] challenges = ChallengeManager.generateChallenge();
-        LoginChallengeRecord record = new LoginChallengeRecord(challenges, difficulty);
-        loginChallenges.put(handler, record);
+        LoginChallengeRecord record = ChallengeManager.addChallengeRecord(handler, difficulty);
         PacketByteBuf packet = PacketByteBufs.create();
-        packet.writeByteArray(challenges);
+        packet.writeByteArray(record.challenge());
         packet.writeInt(difficulty);
+        packet.writeString(ChallengeManager.getProviderName());
         sender.sendPacket(ChallengeManager.POW_CHANNEL, packet);
     }
 }
