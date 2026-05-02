@@ -15,7 +15,7 @@ public final class AnubisClient implements ClientModInitializer {
     public void onInitializeClient() {
         Anubis.startInitialization(initialized);
         ModClientConfiguration.initialize();
-        Anubis.LOGGER.info("Anubis was initialized on the client side, max nonce: {}", ModClientConfiguration.getMaxNonce());
         ModClientNetworking.initialize();
+        Anubis.LOGGER.info("Anubis was initialized on the client side.");
     }
 }

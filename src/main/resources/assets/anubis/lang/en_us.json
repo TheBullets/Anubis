@@ -1,0 +1,7 @@
+{
+  "anubis.text.reload.success": "Successfully reloaded Anubis's configuration.",
+  "anubis.text.reload.failed": "Failed to reload Anubis's configuration.",
+  "anubis.text.login.reloaded": "The server has reloaded Anubis's configuration during the resolution process.",
+  "anubis.text.login.failed": "The PoW challenge failed.",
+  "anubis.text.login.timeout": "The solve process timed out, timeout: %1$ss."
+}

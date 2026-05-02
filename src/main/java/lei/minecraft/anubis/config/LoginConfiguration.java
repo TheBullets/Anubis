@@ -19,7 +19,8 @@ public record LoginConfiguration(
 
     public void check() {
         if (accountName != null && accountTypes != 0) {
-            throw new IllegalArgumentException("Cannot set limits on both account type and account name at the same time.");
+            throw new IllegalArgumentException(
+                    "Cannot set limits on both account type and account name at the same time.");
         }
         if (difficulty < 0) {
             throw new IllegalArgumentException("Difficulty setting is invalid.");
